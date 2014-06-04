@@ -1,0 +1,7 @@
+.ui-slider-horizontal .ui-slider-handle {
+margin-left:-1px;
+}
+
+.ui-slider .ui-slider-handle {
+width:1px;
+}
