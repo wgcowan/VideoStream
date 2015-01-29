@@ -1,4 +1,15 @@
 <?php
+if (!defined('VIDEOSTREAM_PLUGIN_DIR')) {
+    define('VIDEOSTREAM_PLUGIN_DIR', dirname(__FILE__));
+}
+//add_plugin_hook('public_head', 'jwplayer_public_head');
+//add_plugin_hook('admin_head', 'jwplayer_admin_head');
+ 
+require_once VIDEOSTREAM_PLUGIN_DIR . '/VideoStreamPlugin.php';
+//require_once VIDEOSTREAM_PLUGIN_DIR . '/functions.php';
+//$videostreamPlugin = new VideoStreamPlugin;
+//$videostreamPlugin->setUp();
+
 class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 {
     const DEFAULT_VIEWER_WIDTH = 640;
@@ -18,6 +29,8 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
     'config_form',
     'config',
     'public_items_show',
+	'public_head',
+	'admin_head'
     );
 	
 	protected $_filters = array(
@@ -155,8 +168,29 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
         set_option('jwplayer_tuning', $_POST['jwplayer_tuning']);
     }
 
+	public function hookPublicHead($args)
+	{?>
+            <?php echo queue_css_file("vidStyle");?>
+            <?php echo queue_css_file("jquery-ui-1.10.3.custom");?>
+            <?php echo js_tag('jwplayer');?>
+            <?php echo js_tag('pfUtils');?>
+            <?php echo js_tag('jquery');?>
+            <?php echo js_tag('jquery-ui-1.10.3.custom');
+		}
+
+		public function hookAdminHead($args)
+		{?>
+	        <?php echo queue_css_file("jquery-ui-1.10.3.custom");?>
+	        <?php echo js_tag('jwplayer');?>
+	        <?php echo js_tag('pfUtils');?>
+	        <?php echo js_tag('jquery');?>
+	        <?php echo js_tag('jquery-ui-1.10.3.custom');		
+			}
+
+
     public function hookPublicItemsShow($args)
     {
+	
         $this->append($args);
     }
 
@@ -190,6 +224,10 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 		jwplayer("jwplayer_plugin").setup({
 		playlist:  [{
 		sources: [
+		<?php if(get_option('jwplayer_hls_streaming')){?>
+		{
+		file: '<?php echo metadata('item',array("Streaming Video","HLS Streaming Directory"));?><?php echo metadata('item',array("Streaming Video","HLS Video Filename"));?>' },
+		<?php }?>
 		<?php if(get_option('jwplayer_flash_streaming')){?>
 		{
 		file: '<?php echo metadata("item",array ("Streaming Video","Video Streaming URL"));?><?php echo metadata("item",array("Streaming Video","Video Type"));?><?php echo metadata('item',array("Streaming Video","Video Filename"));?>'} ,
@@ -197,10 +235,6 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 		<?php if(get_option('jwplayer_http_streaming')){?>
 		{
 		file: '<?php echo metadata("item",array("Streaming Video","HTTP Streaming Directory"));?><?php echo metadata("item",array("Streaming Video","HTTP Video Filename"));?>'},
-		<?php }?>
-		<?php if(get_option('jwplayer_hls_streaming')){?>
-		{
-		file: '<?php echo metadata('item',array("Streaming Video","HLS Streaming Directory"));?><?php echo metadata('item',array("Streaming Video","HLS Video Filename"));?>' },
 		<?php }?>
 		]
 		}
@@ -296,7 +330,8 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 				jwplayer().setMute(); 
 				return false;
 				});
-		jQuery('#vid_player')[0].onmousemove = (function() {
+
+		jQuery('#vid_player')[0].onmouseover = (function() {
 		    var onmousestop = function() {
 		       jQuery('#vidcontrols').css('display', 'none');
 		    }, thread;
@@ -308,14 +343,14 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 		    };
 		})();
 		jQuery('#vid_player')[0].onmousedown = (function() {
-		    var onmousestop = function() {
+		    var moveend = function() {
 		       jQuery('#vidcontrols').css('display', 'none');
 		    }, thread;
 
 	    return function() {
 	       jQuery('#vidcontrols').css('display', 'block');
 		        clearTimeout(thread);
-		        thread = setTimeout(onmousestop, 3000);
+		        thread = setTimeout(moveend, 3000);
 		    };
 		})();
 		</script>
@@ -340,14 +375,15 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 	    jwplayer("jwplayer_plugin").setup({
 		playlist:  [{
 		sources: [
-		<?php if(get_option('jwplayer_flash_streaming')){?>
-		{
-		file: '<?php echo metadata("item",array ("Streaming Video","Video Streaming URL"));?><?php echo metadata("item",array("Streaming Video","Video Type"));?><?php echo metadata('item',array("Streaming Video","Video Filename"));?>'} ,
-		<?php }?>
 		<?php if(get_option('jwplayer_hls_streaming')){?>
 		{
 		file: '<?php echo metadata('item',array("Streaming Video","HLS Streaming Directory"));?><?php echo metadata('item',array("Streaming Video","HLS Video Filename"));?>' },
 		<?php }?>
+		<?php if(get_option('jwplayer_flash_streaming')){?>
+		{
+		file: '<?php echo metadata("item",array ("Streaming Video","Video Streaming URL"));?><?php echo metadata("item",array("Streaming Video","Video Type"));?><?php echo metadata('item',array("Streaming Video","Video Filename"));?>'} ,
+		<?php }?>
+
 		<?php if(get_option('jwplayer_http_streaming')){?>
 		{
 		file: '<?php echo metadata("item",array("Streaming Video","HTTP Streaming Directory"));?><?php echo metadata("item",array("Streaming Video","HTTP Video Filename"));?>'},
@@ -489,6 +525,7 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 	*
 	*/
 	
+
 	public function filterAdminItemsFormTabs($tabs, $args)
     {
 
