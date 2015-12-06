@@ -19,32 +19,14 @@ class VideoStream_View_Helper_SegmentTuningForm extends Zend_View_Helper_Abstrac
             $item = get_current_record('item');
         }
 
-        $source = '';
-        if (get_option('videostream_jwplayer_flash_streaming')) {
-            $segmentFlashUrl = metadata($item, array('Streaming Video', 'Video Streaming URL'));
-            $segmentFlashType = metadata($item, array('Streaming Video', 'Video Type'));
-            $segmentFlashFile = metadata($item, array('Streaming Video', 'Video Filename'));
-            $source .= sprintf('{file: %s},' . PHP_EOL,
-                json_encode($segmentFlashUrl . $segmentFlashType . $segmentFlashFile));
-        }
-
-        if (get_option('videostream_jwplayer_http_streaming')) {
-            $segmentHttpDir = metadata($item, array('Streaming Video', 'HTTP Streaming Directory'));
-            $segmentHttpFile = metadata($item, array('Streaming Video', 'HTTP Video Filename'));
-            $source .= sprintf('{file: %s},' . PHP_EOL,
-                json_encode($segmentHttpDir . $segmentHttpFile));
-        }
-
-        if (get_option('videostream_jwplayer_hls_streaming')) {
-            $segmentHlsDir = metadata($item, array('Streaming Video', 'HLS Streaming Directory'));
-            $segmentHlsFile = metadata($item, array('Streaming Video', 'HLS Video Filename'));
-            $source .= sprintf('{file: %s},' . PHP_EOL,
-                json_encode($segmentHlsDir . $segmentHlsFile));
-        }
+        $sources = $view->videoStreamSources($item);
+        $sources = version_compare(phpversion(), '5.4.0', '<')
+            ? json_encode($sources)
+            : json_encode($sources, JSON_UNESCAPED_SLASHES);
 
         $html = $view->partial('common/segment-tuning-form.php', array(
             'item' => $item,
-            'source' => $source,
+            'sources' => $sources,
             // String is needed to simplify javascript.
             'segment_start' => (string) metadata($item, array('Streaming Video', 'Segment Start')),
             'segment_end' => (string) metadata($item, array('Streaming Video', 'Segment End')),

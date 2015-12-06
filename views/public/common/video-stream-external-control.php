@@ -18,9 +18,7 @@
 
         jwplayer("jwplayer_plugin").setup({
             playlist: [{
-                sources: [
-                    <?php echo $source; ?>
-                ]
+                sources: <?php echo $sources; ?>
             }],
             <?php if (get_option('videostream_jwplayer_flash_primary')): ?>
             primary: "flash",
