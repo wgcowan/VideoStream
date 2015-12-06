@@ -187,12 +187,6 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
         $post = $args['post'];
         foreach ($this->_options as $optionKey => $optionValue) {
             if (isset($post[$optionKey])) {
-                if ($optionKey == 'videostream_jwplayer_width_public') {
-                    $post['videostream_jwplayer_width_public'] = (integer) $post['videostream_jwplayer_width_public'];
-                }
-                if ($optionKey == 'videostream_jwplayer_height_public') {
-                    $post['videostream_jwplayer_height_public'] = (integer) $post['videostream_jwplayer_height_public'];
-                }
                 set_option($optionKey, $post[$optionKey]);
             }
         }
