@@ -194,21 +194,13 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookAdminHead($args)
     {
-        echo queue_css_file("jquery-ui-1.10.3.custom");
-        echo js_tag('jwplayer');
-        echo js_tag('pfUtils');
-        echo js_tag('jquery');
-        echo js_tag('jquery-ui-1.10.3.custom');
+        queue_css_file('jquery-ui-1.10.3.custom', 'all', false, 'css/jwplayer');
     }
 
 	public function hookPublicHead($args)
 	{
-        echo queue_css_file("vidStyle");
-        echo js_tag('jwplayer');
-        echo queue_css_file("jquery-ui-1.10.3.custom");
-        echo js_tag('pfUtils');
-        echo js_tag('jquery');
-        echo js_tag('jquery-ui-1.10.3.custom');
+        queue_css_file('jquery-ui-1.10.3.custom', 'all', false, 'css/jwplayer');
+        queue_css_file('video-stream');
     }
 
     public function hookPublicItemsShow($args)

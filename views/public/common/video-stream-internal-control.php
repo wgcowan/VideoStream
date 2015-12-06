@@ -1,8 +1,13 @@
-<?php if ($segment_start): ?>
+<?php
+if ($segment_start):
+    echo js_tag('jwplayer', 'javascripts/jwplayer');
+    echo js_tag('pfUtils', 'javascripts');
+    echo js_tag('jquery', 'javascripts/jwplayer');
+    echo js_tag('jquery-ui-1.10.3.custom', 'javascripts/jwplayer');
+?>
 <div id="vid_player" style="width:100%; margin:0 auto;">
     <div id="jwplayer_plugin" style="margin:0 auto;"><?php echo __('Player failed to load...'); ?></div>
 </div>
-<?php endif; ?>
 <script type="text/javascript">
     var is_play = true;
     var startTime= calculateTime(<?php echo json_encode($segment_start); ?>);
@@ -27,3 +32,4 @@
         <?php endif; ?>
     });
 </script>
+<?php endif;

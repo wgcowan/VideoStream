@@ -1,5 +1,10 @@
 <?php
 $elementIds = json_decode(get_option('videostream_elements_ids'), true);
+
+echo js_tag('jwplayer', 'javascripts/jwplayer');
+echo js_tag('pfUtils', 'javascripts');
+echo js_tag('jquery', 'javascripts/jwplayer');
+echo js_tag('jquery-ui-1.10.3.custom', 'javascripts/jwplayer');
 ?>
 <div class="field">
     <div id="videosegmentation_form" class="two columns alpha" >

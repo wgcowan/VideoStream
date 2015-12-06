@@ -1,4 +1,10 @@
-<?php if ($segment_start): ?>
+<?php
+if ($segment_start):
+    echo js_tag('jwplayer', 'javascripts/jwplayer');
+    echo js_tag('pfUtils', 'javascripts');
+    echo js_tag('jquery', 'javascripts/jwplayer');
+    echo js_tag('jquery-ui-1.10.3.custom', 'javascripts/jwplayer');
+?>
 <div id="vid_player">
     <div id="jwplayer_plugin"><?php echo __('Player failed to load...'); ?></div>
     <div id="vidcontrols">
@@ -139,4 +145,4 @@
         })();
     </script>
 </div>
-<?php endif; ?>
+<?php endif;
