@@ -1,63 +1,59 @@
 <?php
-if (!defined('VIDEOSTREAM_PLUGIN_DIR')) {
-    define('VIDEOSTREAM_PLUGIN_DIR', dirname(__FILE__));
-}
-//add_plugin_hook('public_head', 'jwplayer_public_head');
-//add_plugin_hook('admin_head', 'jwplayer_admin_head');
- 
-require_once VIDEOSTREAM_PLUGIN_DIR . '/VideoStreamPlugin.php';
-//require_once VIDEOSTREAM_PLUGIN_DIR . '/functions.php';
-//$videostreamPlugin = new VideoStreamPlugin;
-//$videostreamPlugin->setUp();
-
 class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 {
-    const DEFAULT_VIEWER_WIDTH = 640;
-    const DEFAULT_VIEWER_HEIGHT = 480;
-    const DEFAULT_VIEWER_CONTROL = 0;
-    const DEFAULT_VIEWER_DISPLAY = 0;
-    const DEFAULT_VIEWER_SKIN = 'basic';
-    const DEFAULT_VIEWER_FLASH = 0;
-    const DEFAULT_VIEWER_HTTP = 0;
-    const DEFAULT_VIEWER_HLS = 0;
-    const DEFAULT_VIEWER_PRIMARY = 0;
-    const DEFAULT_VIEWER_AUTOSTART = 0;
-    const DEFAULT_VIEWER_TUNING = 0;
-    
-    protected $_hooks = array('install',
-    'uninstall',
-    'config_form',
-    'config',
-    'public_items_show',
-	'public_head',
-	'admin_head'
+    /**
+     * @var array Hooks for the plugin.
+     */
+    protected $_hooks = array(
+        'install',
+        'upgrade',
+        'uninstall',
+        'uninstall_message',
+        'config_form',
+        'config',
+        'public_head',
+        'admin_head',
+        'public_items_show',
     );
-	
-	protected $_filters = array(
-		'admin_items_form_tabs',
-	);
-        
+
+    /**
+     * @var array Filters for the plugin.
+     */
+    protected $_filters = array(
+        'admin_items_form_tabs',
+    );
+
+    /**
+     * @var array Options and their default values.
+     */
+    protected $_options = array(
+        'videostream_jwplayer_width_public' => 640,
+        'videostream_jwplayer_height_public' => 480,
+        'videostream_jwplayer_external_control' => 0,
+        'videostream_display_current' => 0,
+        'videostream_jwplayer_external_skin' => 'basic',
+        'videostream_jwplayer_flash_streaming' => 0,
+        'videostream_jwplayer_http_streaming' => 0,
+        'videostream_jwplayer_hls_streaming' => 0,
+        'videostream_jwplayer_flash_primary' => 0,
+        'videostream_jwplayer_autostart' => 0,
+        'videostream_display_tuning' => 1,
+    );
+
+    /**
+     * Installs the plugin.
+     */
     public function hookInstall()
     {
-        set_option('jwplayer_width_public', VideoStreamPlugin::DEFAULT_VIEWER_WIDTH);
-        set_option('jwplayer_height_public', VideoStreamPlugin::DEFAULT_VIEWER_HEIGHT);
-        set_option('jwplayer_external_control', VideoStreamPlugin::DEFAULT_VIEWER_CONTROL);
-        set_option('jwplayer_display_current', VideoStreamPlugin::DEFAULT_VIEWER_DISPLAY);
-        set_option('jwplayer_external_skin', VideoStreamPlugin::DEFAULT_VIEWER_SKIN);
-        set_option('jwplayer_flash_streaming', VideoStreamPlugin::DEFAULT_VIEWER_FLASH);
-        set_option('jwplayer_http_streaming', VideoStreamPlugin::DEFAULT_VIEWER_HTTP);
-        set_option('jwplayer_hls_streaming', VideoStreamPlugin::DEFAULT_VIEWER_HLS);
-        set_option('jwplayer_flash_primary', VideoStreamPlugin::DEFAULT_VIEWER_PRIMARY);
-        set_option('jwplayer_autostart', VideoStreamPlugin::DEFAULT_VIEWER_AUTOSTART);
-        set_option('jwplayer_tuning', VideoStreamPlugin::DEFAULT_VIEWER_TUNING);
+        $this->_installOptions();
 
         $db = get_db();
 
-	// Don't install if an element set named "Streaming Video" already exists.
-  if ($db->getTable('ElementSet')->findByName('Streaming Video')) {
-          throw new Exception('An element set by the name "Streaming Video" already exists. You must delete that '
-                         . 'element set to install this plugin.');
-}
+        // Don't install if an element set named "Streaming Video" already exists.
+        if ($db->getTable('ElementSet')->findByName('Streaming Video')) {
+            throw new Exception('An element set by the name "Streaming Video" already exists.'
+                . ' ' . 'You must delete that element set to install this plugin.');
+        }
 
 		$elementSetMetadata = array(
 			'record_type'        => "Item", 
@@ -117,55 +113,99 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 		);
 	insert_element_set($elementSetMetadata, $elements);
     }
-    
+
+    /**
+     * Upgrade the plugin.
+     */
+    public function hookUpgrade($args)
+    {
+        $oldVersion = $args['old_version'];
+        $newVersion = $args['new_version'];
+        $db = $this->_db;
+
+        if (version_compare($oldVersion, '2.2', '<')) {
+            // Normalize the name of options.
+            set_option('videostream_jwplayer_width_public', get_option('jwplayer_width_public'));
+            set_option('videostream_jwplayer_height_public', get_option('jwplayer_height_public'));
+            set_option('videostream_jwplayer_external_control', get_option('jwplayer_external_control'));
+            set_option('videostream_display_current', get_option('jwplayer_display_current'));
+            set_option('videostream_jwplayer_external_skin', get_option('jwplayer_external_skin'));
+            set_option('videostream_jwplayer_flash_streaming', get_option('jwplayer_flash_streaming'));
+            set_option('videostream_jwplayer_http_streaming', get_option('jwplayer_http_streaming'));
+            set_option('videostream_jwplayer_hls_streaming', get_option('jwplayer_hls_streaming'));
+            set_option('videostream_jwplayer_flash_primary', get_option('jwplayer_flash_primary'));
+            set_option('videostream_jwplayer_autostart', get_option('jwplayer_autostart'));
+            // This option is inverted to be more natural.
+            set_option('videostream_display_tuning', !get_option('jwplayer_tuning'));
+
+            delete_option('jwplayer_width_public');
+            delete_option('jwplayer_height_public');
+            delete_option('jwplayer_external_control');
+            delete_option('jwplayer_display_current');
+            delete_option('jwplayer_external_skin');
+            delete_option('jwplayer_flash_streaming');
+            delete_option('jwplayer_http_streaming');
+            delete_option('jwplayer_hls_streaming');
+            delete_option('jwplayer_flash_primary');
+            delete_option('jwplayer_autostart');
+            delete_option('jwplayer_tuning');
+        }
+    }
+
+    /**
+     * Uninstalls the plugin.
+     */
     public  function hookUninstall()
     {
-        delete_option('jwplayer_width_public');
-        delete_option('jwplayer_height_public');
-        delete_option('jwplayer_external_control');
-        delete_option('jwplayer_display_current');
-        delete_option('jwplayer_external_skin');
-        delete_option('jwplayer_flash_streaming');
-        delete_option('jwplayer_http_streaming');
-        delete_option('jwplayer_hls_streaming');
-        delete_option('jwplayer_flash_primary');
-        delete_option('jwplayer_autostart');
-        delete_option('jwplayer_tuning');
+        $this->_uninstallOptions();
+
        if ($elementSet = get_db()->getTable('ElementSet')->findByName("Streaming Video")) {
             $elementSet->delete();
         }
     }
 	
     /**
-* Appends a warning message to the uninstall confirmation page.
-*/
-    public static function admin_append_to_plugin_uninstall_message()
+     * Appends a warning message to the uninstall confirmation page.
+     */
+    public function hookUninstallMessage()
     {
-        echo '<p><strong>Warning</strong>: This will permanently delete the Streaming Video element set and all its associated metadata. You may deactivate this plugin if you do not want to lose data.</p>';
-    }	
-    
-    public function hookConfigForm()
+        echo __('%sWarning%s: This will permanently delete the %s element set and all its associated metadata. You may deactivate this plugin if you do not want to lose data.%s',
+             '<p><strong>', '</strong>', 'Streaming Video', '</p>');
+     }
+
+    /**
+     * Shows plugin configuration page.
+     *
+     * @return void
+     */
+    public function hookConfigForm($args)
     {
-        include 'config_form.php';
+        $view = get_view();
+        echo $view->partial(
+            'plugins/video-stream-config-form.php'
+        );
     }
-    
-    public function hookConfig()
+
+    /**
+     * Processes the configuration form.
+     *
+     * @param array Options set in the config form.
+     * @return void
+     */
+    public function hookConfig($args)
     {
-        if (!is_numeric($_POST['jwplayer_width_public']) ||
-        !is_numeric($_POST['jwplayer_height_public'])) {
-            throw new Omeka_Validator_Exception('The width and height must be numeric.');
+        $post = $args['post'];
+        foreach ($this->_options as $optionKey => $optionValue) {
+            if (isset($post[$optionKey])) {
+                if ($optionKey == 'videostream_jwplayer_width_public') {
+                    $post['videostream_jwplayer_width_public'] = (integer) $post['videostream_jwplayer_width_public'];
+                }
+                if ($optionKey == 'videostream_jwplayer_height_public') {
+                    $post['videostream_jwplayer_height_public'] = (integer) $post['videostream_jwplayer_height_public'];
+                }
+                set_option($optionKey, $post[$optionKey]);
+            }
         }
-        set_option('jwplayer_width_public', $_POST['jwplayer_width_public']);
-        set_option('jwplayer_height_public', $_POST['jwplayer_height_public']);
-        set_option('jwplayer_external_control', $_POST['jwplayer_external_control']);
-        set_option('jwplayer_external_skin', $_POST['jwplayer_external_skin']);
-        set_option('jwplayer_display_current', $_POST['jwplayer_display_current']);
-        set_option('jwplayer_flash_streaming', $_POST['jwplayer_flash_streaming']);
-        set_option('jwplayer_http_streaming', $_POST['jwplayer_http_streaming']);
-        set_option('jwplayer_hls_streaming', $_POST['jwplayer_hls_streaming']);
-        set_option('jwplayer_flash_primary', $_POST['jwplayer_flash_primary']);
-        set_option('jwplayer_autostart', $_POST['jwplayer_autostart']);
-        set_option('jwplayer_tuning', $_POST['jwplayer_tuning']);
     }
 
 	public function hookPublicHead($args)
@@ -198,7 +238,7 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
     public function append($args)
     {
         ?>
-        <?php if (get_option('jwplayer_external_control')) {
+        <?php if (get_option('videostream_jwplayer_external_control')) {
             ?>
         <?php if (metadata('item',array('Streaming Video','Segment Start'))) {
             ?>
@@ -224,35 +264,35 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 		jwplayer("jwplayer_plugin").setup({
 		playlist:  [{
 		sources: [
-		<?php if(get_option('jwplayer_hls_streaming')){?>
+		<?php if(get_option('videostream_jwplayer_hls_streaming')){?>
 		{
 		file: '<?php echo metadata('item',array("Streaming Video","HLS Streaming Directory"));?><?php echo metadata('item',array("Streaming Video","HLS Video Filename"));?>' },
 		<?php }?>
-		<?php if(get_option('jwplayer_flash_streaming')){?>
+		<?php if(get_option('videostream_jwplayer_flash_streaming')){?>
 		{
 		file: '<?php echo metadata("item",array ("Streaming Video","Video Streaming URL"));?><?php echo metadata("item",array("Streaming Video","Video Type"));?><?php echo metadata('item',array("Streaming Video","Video Filename"));?>'} ,
 		<?php }?>
-		<?php if(get_option('jwplayer_http_streaming')){?>
+		<?php if(get_option('videostream_jwplayer_http_streaming')){?>
 		{
 		file: '<?php echo metadata("item",array("Streaming Video","HTTP Streaming Directory"));?><?php echo metadata("item",array("Streaming Video","HTTP Video Filename"));?>'},
 		<?php }?>
 		]
 		}
 		],
-		<?php if(get_option('jwplayer_flash_primary')){?>
+		<?php if(get_option('videostream_jwplayer_flash_primary')){?>
 		primary: "flash",
 		<?php }?>
 		autostart: false,
 		controls: false,
 		width: "100%",
-		height: "<?php echo get_option('jwplayer_height_public');?>",
+		height: "<?php echo get_option('videostream_jwplayer_height_public');?>",
 		}
 		);
 		jwplayer("jwplayer_plugin").onReady(function(){
 				jQuery('.current').text(getFormattedTimeString(startTime));
 				jQuery('.duration').text(getFormattedTimeString(endTime));
 				jwplayer("jwplayer_plugin").seek(startTime);
-                            <?php if(get_option('jwplayer_autostart')==0){?>
+                            <?php if(get_option('videostream_jwplayer_autostart')==0){?>
                                 jwplayer("jwplayer_plugin").pause();
                             <?php }?>
 				}
@@ -375,40 +415,40 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 	    jwplayer("jwplayer_plugin").setup({
 		playlist:  [{
 		sources: [
-		<?php if(get_option('jwplayer_hls_streaming')){?>
+		<?php if(get_option('videostream_jwplayer_hls_streaming')){?>
 		{
 		file: '<?php echo metadata('item',array("Streaming Video","HLS Streaming Directory"));?><?php echo metadata('item',array("Streaming Video","HLS Video Filename"));?>' },
 		<?php }?>
-		<?php if(get_option('jwplayer_flash_streaming')){?>
+		<?php if(get_option('videostream_jwplayer_flash_streaming')){?>
 		{
 		file: '<?php echo metadata("item",array ("Streaming Video","Video Streaming URL"));?><?php echo metadata("item",array("Streaming Video","Video Type"));?><?php echo metadata('item',array("Streaming Video","Video Filename"));?>'} ,
 		<?php }?>
 
-		<?php if(get_option('jwplayer_http_streaming')){?>
+		<?php if(get_option('videostream_jwplayer_http_streaming')){?>
 		{
 		file: '<?php echo metadata("item",array("Streaming Video","HTTP Streaming Directory"));?><?php echo metadata("item",array("Streaming Video","HTTP Video Filename"));?>'},
 		<?php }?>
 		]
 		}
 		],
-		<?php if(get_option('jwplayer_flash_primary')){?>
+		<?php if(get_option('videostream_jwplayer_flash_primary')){?>
 		primary: "flash",
 		<?php }?>
 		autostart: false,
 		width: "95%",
-		height: <?php echo get_option('jwplayer_height_public'); ?>
+		height: <?php echo get_option('videostream_jwplayer_height_public'); ?>
 		}
 		);
 		jwplayer("jwplayer_plugin").onReady(function(){
 				jwplayer("jwplayer_plugin").seek(startTime);
-                            <?php if(get_option('jwplayer_autostart')==0){?>
+                            <?php if(get_option('videostream_jwplayer_autostart')==0){?>
                                 jwplayer("jwplayer_plugin").pause();
                             <?php }?>
 		}
 		);
 		<?php   } ?>
         </script>
-            <?php if (get_option('jwplayer_display_current')) {
+            <?php if (get_option('videostream_display_current')) {
                 ?>
                 
                 <?php $orig_item=get_current_record('item');
@@ -531,7 +571,7 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 
         // insert the Segmenting Video tab before the Miscellaneous tab
         $item = $args['item'];
-        if(get_option('jwplayer_tuning')==0){
+        if (get_option('videostream_display_tuning')) {
         $tabs['Segment Tuning'] = $this->_segmentForm($item);
 	}
         
@@ -556,20 +596,20 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 		$segment_end = metadata('item', array('Streaming Video','Segment End'));
 		$segment_desc = metadata('item',array('Dublin Core','Description'));
 		$source = '';
-		if(get_option('jwplayer_flash_streaming')){
+		if(get_option('videostream_jwplayer_flash_streaming')){
 			$source .= "\n" . '{' . "\n" . 'file: ' . "'" . metadata("item",array ("Streaming Video","Video Streaming URL")) . metadata("item",array("Streaming Video","Video Type")) . metadata("item",array("Streaming Video","Video Filename")) . "'" . '},' . "\n";
 		}
-		if(get_option('jwplayer_http_streaming')){
+		if(get_option('videostream_jwplayer_http_streaming')){
 			$source .= "\n" . '{' . "\n" . 'file: ' . "'"  . metadata("item",array("Streaming Video","HTTP Streaming Directory")) . metadata("item",array("Streaming Video","HTTP Video Filename")) . "'" . '},' . "\n";
 		}
-		if(get_option('jwplayer_hls_streaming')){
+		if(get_option('videostream_jwplayer_hls_streaming')){
 			$source .= "\n" . '{' . "\n" . 'file: ' . "'" . metadata('item',array("Streaming Video","HLS Streaming Directory")) . metadata('item',array("Streaming Video","HLS Video Filename")) . "'" . '},' . "\n";
 		}
-		$height = get_option('jwplayer_height_public');
+		$height = get_option('videostream_jwplayer_height_public');
 		$jwplayer = '';
-		
-		if(get_option('jwplayer_flash_primary')){
-			$jwplayer .= 
+
+		if(get_option('videostream_jwplayer_flash_primary')){
+			$jwplayer .=
 <<<JW_Str1
 
 		jwplayer("jwplayer_plugin").setup({
