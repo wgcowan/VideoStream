@@ -38,6 +38,7 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
         'videostream_jwplayer_flash_primary' => 0,
         'videostream_jwplayer_autostart' => 0,
         'videostream_display_tuning' => 1,
+        'videostream_elements_ids' => '',
     );
 
     /**
@@ -57,6 +58,19 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
         }
 
         insert_element_set($elementSetMetadata, $elements);
+
+        // Prepare element ids for javascript.
+        $elementIds = array();
+        $elementsTable = $this->_db->getTable('Element');
+        $element = $elementsTable->findByElementSetNameAndElementName('Dublin Core', 'Title');
+        $elementIds['Dublin Core:Title'] = $element->id;
+        $element = $elementsTable->findByElementSetNameAndElementName('Dublin Core', 'Description');
+        $elementIds['Dublin Core:Description'] = $element->id;
+        $elements = $elementsTable->findBySet($elementSetName);
+        foreach ($elements as $element) {
+            $elementIds[$elementSetName . ':' . $element->name] = $element->id;
+        }
+        $this->_options['videostream_elements_ids'] = json_encode($elementIds);
 
         $this->_installOptions();
     }
@@ -96,6 +110,25 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
             delete_option('jwplayer_flash_primary');
             delete_option('jwplayer_autostart');
             delete_option('jwplayer_tuning');
+        }
+
+        if (version_compare($oldVersion, '2.2.1', '<')) {
+            // Load elements to add.
+            require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'elements.php';
+
+            $elementSetName = $elementSetMetadata['name'];
+            // Prepare element ids for javascript.
+            $elementIds = array();
+            $elementsTable = $db->getTable('Element');
+            $element = $elementsTable->findByElementSetNameAndElementName('Dublin Core', 'Title');
+            $elementIds['Dublin Core:Title'] = $element->id;
+            $element = $elementsTable->findByElementSetNameAndElementName('Dublin Core', 'Description');
+            $elementIds['Dublin Core:Description'] = $element->id;
+            $elements = $elementsTable->findBySet($elementSetName);
+            foreach ($elements as $element) {
+                $elementIds[$elementSetName . ':' . $element->name] = $element->id;
+            }
+            set_option('videostream_elements_ids', json_encode($elementIds));
         }
     }
 

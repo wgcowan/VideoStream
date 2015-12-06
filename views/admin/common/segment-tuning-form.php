@@ -1,3 +1,6 @@
+<?php
+$elementIds = json_decode(get_option('videostream_elements_ids'), true);
+?>
 <div class="field">
     <div id="videosegmentation_form" class="two columns alpha" >
         <input type="hidden" name="videomeka_slider_start" id="videomeka_slider_start" />
@@ -58,7 +61,7 @@
             <saveButton><?php echo __('Update'); ?></saveButton>
             <script type="text/javascript">
                 jQuery(document).ready(function() {
-                    var v_desc = jQuery("#Elements-41-0-text").val();
+                    var v_desc = jQuery("#Elements-<?php echo $elementIds['Dublin Core:Description']; ?>-0-text").val();
 
                     jQuery("#SegmentStart").val(getFormattedTimeString(startTime));
                     jQuery("#SegmentEnd").val(getFormattedTimeString(endTime));
@@ -72,21 +75,21 @@
                     });
                     jQuery("startButton").click(function() {
                         jQuery("#SegmentStart").val(getFormattedTimeString(jwplayer().getPosition()));
-                        jQuery("#Elements-71-0-text").val(jQuery("#SegmentStart").val());
+                        jQuery("#Elements-<?php echo $elementIds['Streaming Video:Segment Start']; ?>-0-text").val(jQuery("#SegmentStart").val());
                     });
                     jQuery("endButton").click(function() {
                         jQuery("#SegmentEnd").val(getFormattedTimeString(jwplayer().getPosition()));
-                        jQuery("#Elements-72-0-text").val(jQuery("#SegmentEnd").val());
+                        jQuery("#Elements-<?php echo $elementIds['Streaming Video:Segment End']; ?>-0-text").val(jQuery("#SegmentEnd").val());
                     });
                     jQuery("saveButton").click(function() {
                         if (jQuery("#videomeka_description").val().length == 0) {
-                            var desc = jQuery("#Elements-41-0-text").val();
+                            var desc = jQuery("#Elements-<?php echo $elementIds['Dublin Core:Description']; ?>-0-text").val();
                         } else {
                             var desc = jQuery("#videomeka_description").val();
                         }
-                        jQuery("#Elements-41-0-text").val(desc);
-                        jQuery("#Elements-71-0-text").val(jQuery("#SegmentStart").val());
-                        jQuery("#Elements-72-0-text").val(jQuery("#SegmentEnd").val());
+                        jQuery("#Elements-<?php echo $elementIds['Dublin Core:Description']; ?>-0-text").val(desc);
+                        jQuery("#Elements-<?php echo $elementIds['Streaming Video:Segment Start']; ?>-0-text").val(jQuery("#SegmentStart").val());
+                        jQuery("#Elements-<?php echo $elementIds['Streaming Video:Segment End']; ?>-0-text").val(jQuery("#SegmentEnd").val());
                     });
                 });
             </script>
