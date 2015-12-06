@@ -45,73 +45,20 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
      */
     public function hookInstall()
     {
-        $this->_installOptions();
+        // Load elements to add.
+        require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'elements.php';
 
-        $db = get_db();
-
+        $elementSetName = $elementSetMetadata['name'];
+        $elementSet = get_record('ElementSet', array('name' => $elementSetName));
         // Don't install if an element set named "Streaming Video" already exists.
-        if ($db->getTable('ElementSet')->findByName('Streaming Video')) {
-            throw new Exception('An element set by the name "Streaming Video" already exists.'
-                . ' ' . 'You must delete that element set to install this plugin.');
+        if ($elementSet) {
+            throw new Omeka_Plugin_Exception('An element set by the name "' . $elementSetName . '" already exists.'
+                . ' ' . 'You must delete that element set before to install this plugin.');
         }
 
-		$elementSetMetadata = array(
-			'record_type'        => "Item", 
-			'name'        => "Streaming Video", 
-			'description' => "Elements needed for streaming video for the VideoStream Plugin"
-		);
-		$elements = array(
-			array(
-				'name'           => "Video Filename",
-				'description'    => "Actual filename of the video on the video source server"
-			), 
-			array(
-				'name'           => "Video Streaming URL",
-				'description'    => "Actual URL of the streaming server without the filename"
-			), 
-			array(
-				'name'           => "Video Type",
-				'description'    => "Encoding for the video; mp4, flv, mov, and so forth"
-			), 
-			array(
-				'name'           => "HLS Streaming Directory",
-				'description'    => "Directory location on your server for the HLS .m3u8 file."
-			), 
-			array(
-				'name'           => "HLS Video Filename",
-				'description'    => "Filename for HLS video file. Include any subdirectories."
-			), 
-			array(
-				'name'           => "HTTP Streaming Directory",
-				'description'    => "Directory location for files to HTTP stream directly from Web Server."
-			), 
-			array(
-				'name'           => "HTTP Video Filename",
-				'description'    => "Actual filename of the video on the web server"
-			), 
-			array(
-				'name'           => "Segment Start",
-				'description'    => "Start point in video in either seconds or hh:mm:ss"
-			), 
-			array(
-				'name'           => "Segment End",
-				'description'    => "End point in video in either seconds or hh:mm:ss"
-			), 
-			array(
-				'name'           => "Segment Type",
-				'description'    => "Use segment type to help determine how segment is to be displayed. For instance, an event may encompass many scenes, etc."
-			), 
-			array(
-				'name'           => "Show Item",
-				'description'    => "Should item be shown in a list. Can be useful in cetain types of displays where you may not want to have all items shown."
-			), 
-			array(
-				'name'           => "Video Source",
-				'description'    => "Source of video. Streaming server, YouTube, etc."
-			) 
-			// etc.
-		);
-	insert_element_set($elementSetMetadata, $elements);
+        insert_element_set($elementSetMetadata, $elements);
+
+        $this->_installOptions();
     }
 
     /**
@@ -157,13 +104,23 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
      */
     public  function hookUninstall()
     {
-        $this->_uninstallOptions();
+        // Load elements to remove.
+        require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'elements.php';
 
-       if ($elementSet = get_db()->getTable('ElementSet')->findByName("Streaming Video")) {
+        $elementSetName = $elementSetMetadata['name'];
+        $elementSet = get_record('ElementSet', array('name' => $elementSetName));
+
+        if ($elementSet) {
+            $elements = $elementSet->getElements();
+            foreach ($elements as $element) {
+                $element->delete();
+            }
             $elementSet->delete();
         }
+
+        $this->_uninstallOptions();
     }
-	
+
     /**
      * Appends a warning message to the uninstall confirmation page.
      */
