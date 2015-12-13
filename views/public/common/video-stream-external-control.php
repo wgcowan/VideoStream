@@ -13,7 +13,7 @@ if ($segment_start):
             <li id="playback-display"><span class="current">0:00:00</span></li>
             <li class="progressBar"></li>
             <li id="slider-display"><span class="duration">0:00:00</span> </li>
-            <li id="vol_img"><img class="muted" src="<?php echo img('volume_speaker.png'); ?>" /></a></li>
+            <li id="vol_img"><img class="muted" src="<?php echo img('volume_speaker.png'); ?>" /></li>
             <li class="volumeBar"></li>
         </ul>
     </div>
