@@ -211,8 +211,8 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
         }
     }
 
-	public function hookPublicHead($args)
-	{
+    public function hookPublicHead($args)
+    {
         $request = Zend_Controller_Front::getInstance()->getRequest();
         $controller = $request->getControllerName();
         $action = $request->getActionName();
@@ -230,33 +230,35 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
         echo $view->videoStream($item);
     }
 
-	/*
-	* Save jQuery slider to Streaming Video element and Description to Dublin Core before save item
-	* use update_item in AfterSaveItem cause infinite loop where elements updated several times until above packet_limit
+    /*
+     * Save jQuery slider to Streaming Video element and Description to Dublin Core before save item
+     * use update_item in AfterSaveItem cause infinite loop where elements updated several times until above packet_limit
         $post = $_POST;
         $item = $args['record'];
-        update_item($item, array (
-			'overwriteElementTexts' => "true"
-		), array (
-			'Streaming Video' => array (
-				'Segment Start' => array ( array (
-					'text' => "$slider_start",
-					'html' => false)
-				),
-				'Segment End' => array ( array (
-					'text' => "$slider_end",
-					'html' => false)
-				)
-			),
-			'Dublin Core' => array (
-				'Description' => array ( array (
-					'text' => "$description",
-					'html' => false)
-				)
-			)
-		))
-	*
-	*/
+        update_item($item,
+            array(
+                'overwriteElementTexts' => "true"
+            ),
+            array(
+                'Streaming Video' => array(
+                    'Segment Start' => array(array(
+                        'text' => "$slider_start",
+                        'html' => false,
+                    )),
+                    'Segment End' => array(array(
+                        'text' => "$slider_end",
+                        'html' => false,
+                    ))
+                ),
+                'Dublin Core' => array(
+                    'Description' => array(array(
+                        'text' => "$description",
+                        'html' => false,
+                    ))
+            ))
+        );
+     *
+     */
 
     public function filterAdminItemsFormTabs($tabs, $args)
     {
