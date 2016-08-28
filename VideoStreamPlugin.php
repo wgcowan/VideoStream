@@ -194,13 +194,32 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookAdminHead($args)
     {
-        queue_css_file('jquery-ui-1.10.3.custom', 'all', false, 'css/jwplayer');
+        $request = Zend_Controller_Front::getInstance()->getRequest();
+        $controller = $request->getControllerName();
+        $action = $request->getActionName();
+        if ($controller == 'items' && $action == 'show') {
+            queue_css_file('jquery-ui-1.10.3.custom', 'all', false, 'css/jwplayer');
+        }
+        elseif ($controller == 'items' && in_array($action, array('edit', 'add'))
+                && get_option('videostream_display_tuning')
+            ) {
+            queue_css_file('jquery-ui-1.10.3.custom', 'all', false, 'css/jwplayer');
+            queue_js_file('jwplayer', 'javascripts/jwplayer');
+            queue_js_file('pfUtils', 'javascripts');
+            queue_js_file('jquery', 'javascripts/jwplayer');
+            queue_js_file('jquery-ui-1.10.3.custom', 'javascripts/jwplayer');
+        }
     }
 
 	public function hookPublicHead($args)
 	{
-        queue_css_file('jquery-ui-1.10.3.custom', 'all', false, 'css/jwplayer');
-        queue_css_file('video-stream');
+        $request = Zend_Controller_Front::getInstance()->getRequest();
+        $controller = $request->getControllerName();
+        $action = $request->getActionName();
+        if ($controller == 'items' && $action == 'show') {
+            queue_css_file('jquery-ui-1.10.3.custom', 'all', false, 'css/jwplayer');
+            queue_css_file('video-stream');
+        }
     }
 
     public function hookPublicItemsShow($args)
