@@ -18,6 +18,9 @@ the whole item and a description for each segment of the video, that is updated
 automatically when the video is playing. Each segment is a specific item, with
 the same video.
 
+A full [pdf documentation] is available on the site of the Indiana University
+Libraries.
+
 
 Installation
 ------------
@@ -95,10 +98,10 @@ Troubleshooting
 See online issues on the [plugin issues] page on GitHub.
 
 
-License
--------
+Licenses
+--------
 
-This plugin is published under [GNU/GPL].
+* This plugin is published under [GNU/GPL].
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -114,6 +117,12 @@ You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+* JW Player library (see full [JW Player license] online)
+
+The use of this library is governed by a Creative Commons license. You can use,
+modify, copy, and distribute this edition as long as it’s for non-commercial
+use, you provide attribution, and share under a similar license.
+
 
 Contact
 -------
@@ -127,15 +136,17 @@ Current maintainers:
 Copyright
 ---------
 
-* Copyright William Cowan, 2012-2015
-* Copyright Daniel Berthereau, 2015
+* Copyright William Cowan, 2012-2016
+* Copyright Daniel Berthereau, 2015-2016
 
 
 [Video Stream]: https://github.com/wgcowan/VideoStream
 [Omeka]: https://omeka.org
 [JW Player]: https://www.jwplayer.com/
 [digital library project]: http://www.dlib.indiana.edu/projects/omeka2/items/show/3558
+[pdf documentation]: http://www.dlib.indiana.edu/projects/omeka2/items/show/3582
 [plugin issues]: https://github.com/wgcowan/VideoStream/issues
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
+[JW Player license]: http://www.jwplayer.com/license
 [wgcowan]: https://github.com/wgcowan "William Cowan"
 [Daniel-KM]: https://github.com/Daniel-KM "Daniel Berthereau"

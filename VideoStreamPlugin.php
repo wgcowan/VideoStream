@@ -194,13 +194,32 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
 
     public function hookAdminHead($args)
     {
-        queue_css_file('jquery-ui-1.10.3.custom', 'all', false, 'css/jwplayer');
+        $request = Zend_Controller_Front::getInstance()->getRequest();
+        $controller = $request->getControllerName();
+        $action = $request->getActionName();
+        if ($controller == 'items' && $action == 'show') {
+            queue_css_file('jquery-ui-1.10.3.custom', 'all', false, 'css/jwplayer');
+        }
+        elseif ($controller == 'items' && in_array($action, array('edit', 'add'))
+                && get_option('videostream_display_tuning')
+            ) {
+            queue_css_file('jquery-ui-1.10.3.custom', 'all', false, 'css/jwplayer');
+            queue_js_file('jwplayer', 'javascripts/jwplayer');
+            queue_js_file('pfUtils', 'javascripts');
+            queue_js_file('jquery', 'javascripts/jwplayer');
+            queue_js_file('jquery-ui-1.10.3.custom', 'javascripts/jwplayer');
+        }
     }
 
-	public function hookPublicHead($args)
-	{
-        queue_css_file('jquery-ui-1.10.3.custom', 'all', false, 'css/jwplayer');
-        queue_css_file('video-stream');
+    public function hookPublicHead($args)
+    {
+        $request = Zend_Controller_Front::getInstance()->getRequest();
+        $controller = $request->getControllerName();
+        $action = $request->getActionName();
+        if ($controller == 'items' && $action == 'show') {
+            queue_css_file('jquery-ui-1.10.3.custom', 'all', false, 'css/jwplayer');
+            queue_css_file('video-stream');
+        }
     }
 
     public function hookPublicItemsShow($args)
@@ -211,33 +230,35 @@ class VideoStreamPlugin extends Omeka_Plugin_AbstractPlugin
         echo $view->videoStream($item);
     }
 
-	/*
-	* Save jQuery slider to Streaming Video element and Description to Dublin Core before save item
-	* use update_item in AfterSaveItem cause infinite loop where elements updated several times until above packet_limit
+    /*
+     * Save jQuery slider to Streaming Video element and Description to Dublin Core before save item
+     * use update_item in AfterSaveItem cause infinite loop where elements updated several times until above packet_limit
         $post = $_POST;
         $item = $args['record'];
-        update_item($item, array (
-			'overwriteElementTexts' => "true"
-		), array (
-			'Streaming Video' => array (
-				'Segment Start' => array ( array (
-					'text' => "$slider_start",
-					'html' => false)
-				),
-				'Segment End' => array ( array (
-					'text' => "$slider_end",
-					'html' => false)
-				)
-			),
-			'Dublin Core' => array (
-				'Description' => array ( array (
-					'text' => "$description",
-					'html' => false)
-				)
-			)
-		))
-	*
-	*/
+        update_item($item,
+            array(
+                'overwriteElementTexts' => "true"
+            ),
+            array(
+                'Streaming Video' => array(
+                    'Segment Start' => array(array(
+                        'text' => "$slider_start",
+                        'html' => false,
+                    )),
+                    'Segment End' => array(array(
+                        'text' => "$slider_end",
+                        'html' => false,
+                    ))
+                ),
+                'Dublin Core' => array(
+                    'Description' => array(array(
+                        'text' => "$description",
+                        'html' => false,
+                    ))
+            ))
+        );
+     *
+     */
 
     public function filterAdminItemsFormTabs($tabs, $args)
     {

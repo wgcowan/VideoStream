@@ -1,10 +1,5 @@
 <?php
 $elementIds = json_decode(get_option('videostream_elements_ids'), true);
-
-echo js_tag('jwplayer', 'javascripts/jwplayer');
-echo js_tag('pfUtils', 'javascripts');
-echo js_tag('jquery', 'javascripts/jwplayer');
-echo js_tag('jquery-ui-1.10.3.custom', 'javascripts/jwplayer');
 ?>
 <div class="field">
     <div id="videosegmentation_form" class="two columns alpha" >
@@ -19,27 +14,27 @@ echo js_tag('jquery-ui-1.10.3.custom', 'javascripts/jwplayer');
         var startTime= calculateTime(<?php echo json_encode($segment_start); ?>);
         var endTime = calculateTime(<?php echo json_encode($segment_end); ?>);
 
-        jwplayer("jwplayer_plugin").setup({
+        jwplayer('jwplayer_plugin').setup({
             playlist:  [{
                 sources: <?php echo $sources; ?>
             }],
             <?php if (get_option('videostream_jwplayer_flash_primary')): ?>
-            primary: "flash",
+            primary: 'flash',
             <?php endif; ?>
             autostart: false,
             controls: true,
-            width: "95%",
+            width: '95%',
             height: <?php echo json_encode(get_option('videostream_jwplayer_height_public')); ?>
         });
 
-        jwplayer("jwplayer_plugin").onReady(function() {
-            jwplayer("jwplayer_plugin").seek(calculateTime(<?php echo json_encode($segment_start); ?>));
-            jQuery("#CurrentPos").val(getFormattedTimeString(<?php echo json_encode($segment_end); ?>));
-            jwplayer("jwplayer_plugin").pause();
+        jwplayer('jwplayer_plugin').onReady(function() {
+            jwplayer('jwplayer_plugin').seek(calculateTime(<?php echo json_encode($segment_start); ?>));
+            jQuery('#CurrentPos').val(getFormattedTimeString(<?php echo json_encode($segment_end); ?>));
+            jwplayer('jwplayer_plugin').pause();
         });
 
-        jwplayer("jwplayer_plugin").onTime(function() {
-            jQuery("#CurrentPos").val(getFormattedTimeString(jwplayer("jwplayer_plugin").getPosition()));
+        jwplayer('jwplayer_plugin').onTime(function() {
+            jQuery('#CurrentPos').val(getFormattedTimeString(jwplayer('jwplayer_plugin').getPosition()));
         });
     </script>
     <p>
@@ -64,35 +59,35 @@ echo js_tag('jquery-ui-1.10.3.custom', 'javascripts/jwplayer');
             <saveButton><?php echo __('Update'); ?></saveButton>
             <script type="text/javascript">
                 jQuery(document).ready(function() {
-                    var v_desc = jQuery("#Elements-<?php echo $elementIds['Dublin Core:Description']; ?>-0-text").val();
+                    var v_desc = jQuery('#Elements-<?php echo $elementIds['Dublin Core:Description']; ?>-0-text').val();
 
-                    jQuery("#SegmentStart").val(getFormattedTimeString(startTime));
-                    jQuery("#SegmentEnd").val(getFormattedTimeString(endTime));
-                    jQuery("pauseButton").button();
-                    jQuery("startButton").button();
-                    jQuery("endButton").button();
-                    jQuery("saveButton").button();
-                    jQuery("#videomeka_description").val(v_desc);
-                    jQuery("pauseButton").click(function() {
-                        jwplayer("jwplayer_plugin").pause();
+                    jQuery('#SegmentStart').val(getFormattedTimeString(startTime));
+                    jQuery('#SegmentEnd').val(getFormattedTimeString(endTime));
+                    jQuery('pauseButton').button();
+                    jQuery('startButton').button();
+                    jQuery('endButton').button();
+                    jQuery('saveButton').button();
+                    jQuery('#videomeka_description').val(v_desc);
+                    jQuery('pauseButton').click(function() {
+                        jwplayer('jwplayer_plugin').pause();
                     });
-                    jQuery("startButton").click(function() {
-                        jQuery("#SegmentStart").val(getFormattedTimeString(jwplayer().getPosition()));
-                        jQuery("#Elements-<?php echo $elementIds['Streaming Video:Segment Start']; ?>-0-text").val(jQuery("#SegmentStart").val());
+                    jQuery('startButton').click(function() {
+                        jQuery('#SegmentStart').val(getFormattedTimeString(jwplayer().getPosition()));
+                        jQuery('#Elements-<?php echo $elementIds['Streaming Video:Segment Start']; ?>-0-text').val(jQuery('#SegmentStart').val());
                     });
-                    jQuery("endButton").click(function() {
-                        jQuery("#SegmentEnd").val(getFormattedTimeString(jwplayer().getPosition()));
-                        jQuery("#Elements-<?php echo $elementIds['Streaming Video:Segment End']; ?>-0-text").val(jQuery("#SegmentEnd").val());
+                    jQuery('endButton').click(function() {
+                        jQuery('#SegmentEnd').val(getFormattedTimeString(jwplayer().getPosition()));
+                        jQuery('#Elements-<?php echo $elementIds['Streaming Video:Segment End']; ?>-0-text').val(jQuery('#SegmentEnd').val());
                     });
-                    jQuery("saveButton").click(function() {
-                        if (jQuery("#videomeka_description").val().length == 0) {
-                            var desc = jQuery("#Elements-<?php echo $elementIds['Dublin Core:Description']; ?>-0-text").val();
+                    jQuery('saveButton').click(function() {
+                        if (jQuery('#videomeka_description').val().length == 0) {
+                            var desc = jQuery('#Elements-<?php echo $elementIds['Dublin Core:Description']; ?>-0-text').val();
                         } else {
-                            var desc = jQuery("#videomeka_description").val();
+                            var desc = jQuery('#videomeka_description').val();
                         }
-                        jQuery("#Elements-<?php echo $elementIds['Dublin Core:Description']; ?>-0-text").val(desc);
-                        jQuery("#Elements-<?php echo $elementIds['Streaming Video:Segment Start']; ?>-0-text").val(jQuery("#SegmentStart").val());
-                        jQuery("#Elements-<?php echo $elementIds['Streaming Video:Segment End']; ?>-0-text").val(jQuery("#SegmentEnd").val());
+                        jQuery('#Elements-<?php echo $elementIds['Dublin Core:Description']; ?>-0-text').val(desc);
+                        jQuery('#Elements-<?php echo $elementIds['Streaming Video:Segment Start']; ?>-0-text').val(jQuery('#SegmentStart').val());
+                        jQuery('#Elements-<?php echo $elementIds['Streaming Video:Segment End']; ?>-0-text').val(jQuery('#SegmentEnd').val());
                     });
                 });
             </script>
